@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} — Access Terminal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ac: {{ theme_color }};
+            --ac-glow: {{ theme_color }}44;
+        }
+
+        /* প্রফেশনাল কালার এনিমেশন - ল্যাগ ছাড়া */
+        @keyframes colorCycle {
+            0% { --ac: #00ff41; --ac-glow: #00ff4144; }
+            10% { --ac: #a855f7; --ac-glow: #a855f744; }
+            20% { --ac: #38bdf8; --ac-glow: #38bdf844; }
+            30% { --ac: #ef4444; --ac-glow: #ef444444; }
+            40% { --ac: #fbbf24; --ac-glow: #fbbf2444; }
+            50% { --ac: #06b6d4; --ac-glow: #06b6d444; }
+            60% { --ac: #ec4899; --ac-glow: #ec489944; }
+            70% { --ac: #84cc16; --ac-glow: #84cc1644; }
+            80% { --ac: #ff00ff; --ac-glow: #ff00ff44; }
+            90% { --ac: #ff6b00; --ac-glow: #ff6b0044; }
+            100% { --ac: #00ff41; --ac-glow: #00ff4144; }
+        }
+
+        /* ডাইনামিক ভেরিয়েবল সাপোর্ট */
+        @property --ac { syntax: '<color>'; initial-value: #00ff41; inherits: false; }
+
+        *{margin:0;padding:0;box-sizing:border-box}
+        
+        body {
+            background: #050508;
+            font-family: 'Rajdhani', sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            animation: colorCycle 15s infinite linear; /* রঙ পরিবর্তনের সময় বাড়িয়ে স্মুথ করা হয়েছে */
+        }
+
+        canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            opacity: 0.25;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(10, 10, 20, 0.7);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--ac);
+            border-radius: 24px;
+            padding: 40px 30px;
+            box-shadow: 0 0 40px var(--ac-glow), inset 0 0 20px var(--ac-glow);
+            position: relative;
+            overflow: hidden;
+            transition: border 0.5s ease, box-shadow 0.5s ease;
+        }
+
+        /* স্ক্যানার লাইন ইফেক্ট */
+        .card::after {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(transparent, var(--ac-glow), transparent);
+            animation: scan 4s infinite linear;
+            pointer-events: none;
+        }
+
+        @keyframes scan {
+            0% { top: -100%; }
+            100% { top: 100%; }
+        }
+
+        .logo-box {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .logo-box img {
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            border: 2px solid var(--ac);
+            padding: 5px;
+            box-shadow: 0 0 20px var(--ac-glow);
+            object-fit: cover;
+        }
+
+        .brand {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--ac);
+            text-align: center;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            transition: color 0.5s ease;
+        }
+
+        .terminal-status {
+            font-size: 11px;
+            color: var(--ac);
+            text-align: center;
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+            opacity: 0.7;
+        }
+
+        .prompt {
+            font-size: 13px;
+            color: var(--ac);
+            margin-bottom: 10px;
+            font-weight: 600;
+            font-family: monospace;
+        }
+
+        .error-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #f87171;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--ac);
+            border-radius: 12px;
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 16px;
+            outline: none;
+            margin-bottom: 15px;
+            transition: 0.3s;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        input:focus {
+            box-shadow: 0 0 20px var(--ac-glow);
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--ac);
+            border: none;
+            border-radius: 12px;
+            color: #000;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px var(--ac);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 10px;
+            color: #4b5563;
+            letter-spacing: 1px;
+            line-height: 1.6;
+        }
+
+        .blink {
+            animation: blinker 1s step-end infinite;
+        }
+
+        @keyframes blinker {
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix"></canvas>
+    <div class="container">
+        <div class="card">
+            <div class="logo-box">
+                <img src="https://files.catbox.moe/g533ba.png" alt="security-logo">
+            </div>
+            <div class="brand">{{ site_name }}</div>
+            <div class="terminal-status">SECURE TERMINAL V4.0</div>
+            
+            <div class="prompt">> ACCESS_CODE_REQUIRED<span class="blink">_</span></div>
+            
+            {% if error %}
+            <div class="error-box">ERROR: {{ error }}</div>
+            {% endif %}
+
+            <form method="POST">
+                <input type="password" name="password" placeholder="••••••••" required autofocus>
+                <button type="submit" class="login-btn">Authenticate</button>
+            </form>
+
+            <div class="footer">
+                AUTHORIZED PERSONNEL ONLY<br>
+                &copy; {{ site_name }} SECURITY SYSTEMS
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const chars = '0123456789ABCDEFHIJKLMNOPQRSTUVWXYZアイウエオカキクケコ';
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+
+        function draw() {
+            ctx.fillStyle = 'rgba(5, 5, 8, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // CSS ভেরিয়েবল থেকে বর্তমান রঙ নেওয়া
+            const currentColor = getComputedStyle(document.body).getPropertyValue('--ac');
+            ctx.fillStyle = currentColor;
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars[Math.floor(Math.random() * chars.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        // ল্যাগ কমানোর জন্য requestAnimationFrame ব্যবহার
+        function animate() {
+            draw();
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} — Control Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --accent: #38bdf8;
+            --accent-dim: rgba(56, 189, 248, 0.1);
+            --text-main: #f1f5f9;
+            --text-dim: #94a3b8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --border: rgba(255, 255, 255, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        /* Glassmorphism Header */
+        header {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--bg-dark);
+            font-weight: bold;
+        }
+
+        .logo-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: -0.5px;
+            color: var(--text-main);
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-val { color: var(--accent); }
+        .stat-lab { color: var(--text-dim); font-size: 0.65rem; text-transform: uppercase; }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-logout { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .btn-logout:hover { background: #ef4444; color: white; }
+
+        main {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Dashboard Overview */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .overview-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            text-align: left;
+        }
+
+        .overview-card h3 {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .overview-card p {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        /* Server Cards */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .server-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .server-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .server-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .server-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .status-running { background: var(--success); box-shadow: 0 0 10px var(--success); }
+        .status-stopped { background: var(--danger); }
+
+        .server-details h4 { font-size: 1rem; margin-bottom: 2px; }
+        .server-details span { font-size: 0.8rem; color: var(--text-dim); }
+
+        .server-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+        .action-btn:hover { background: var(--accent); color: var(--bg-dark); border-color: var(--accent); }
+        .action-btn.delete:hover { background: var(--danger); color: white; border-color: var(--danger); }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 56px;
+            height: 56px;
+            background: var(--accent);
+            color: var(--bg-dark);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 10px 20px rgba(56, 189, 248, 0.3);
+            cursor: pointer;
+            border: none;
+            transition: 0.3s;
+        }
+
+        .fab:hover { transform: rotate(90deg) scale(1.1); }
+
+        /* Modal Styles */
+        .modal-bg {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-bg.show { display: flex; }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: white;
+            outline: none;
+        }
+
+        .form-input:focus { border-color: var(--accent); }
+
+        #toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--bg-card);
+            border-left: 4px solid var(--accent);
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            transition: 0.3s;
+            opacity: 0;
+        }
+
+        #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        @media (max-width: 600px) {
+            header { flex-direction: column; gap: 10px; padding: 1rem; }
+            .overview-grid { grid-template-columns: 1fr; }
+            .server-card { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .server-actions { width: 100%; justify-content: space-between; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="/" class="logo">
+            <div class="logo-icon">✦</div>
+            <span class="logo-name">{{ site_name }}</span>
+        </a>
+        <div class="header-stats">
+            <div class="stat-item">
+                <span class="stat-lab">CPU Load</span>
+                <span id="statCpu" class="stat-val">--%</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-lab">Memory</span>
+                <span id="statRam" class="stat-val">--%</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-lab">Storage</span>
+                <span id="statDisk" class="stat-val">--%</span>
+            </div>
+        </div>
+        <a href="/logout" class="btn btn-logout">Logout</a>
+    </header>
+
+    <main>
+        <div class="overview-grid">
+            <div class="overview-card">
+                <h3>Active Servers</h3>
+                <p>{{ running }}</p>
+            </div>
+            <div class="overview-card">
+                <h3>Total Instances</h3>
+                <p>{{ total }}</p>
+            </div>
+        </div>
+
+        <div class="section-header">
+            <h2 style="font-size: 1.25rem;">My Projects</h2>
+        </div>
+
+        <div class="server-grid">
+            {% if servers %}
+                {% for name, cfg in servers.items() %}
+                <div class="server-card">
+                    <div class="server-info">
+                        <div class="status-indicator {{ 'status-running' if cfg.status == 'running' else 'status-stopped' }}"></div>
+                        <div class="server-details">
+                            <h4>{{ name.upper() }}</h4>
+                            <span>{{ cfg.runtime }} • {{ cfg.main_file or 'main.py' }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="server-actions">
+                        {% if cfg.status == 'running' %}
+                        <form action="/server/{{ name }}/stop" method="POST">
+                            <button class="action-btn" title="Stop">⏹</button>
+                        </form>
+                        {% else %}
+                        <form action="/server/{{ name }}/start" method="POST">
+                            <button class="action-btn" style="color: var(--success);" title="Start">▶</button>
+                        </form>
+                        {% endif %}
+                        
+                        <a href="/server/{{ name }}" class="action-btn" title="Console">Terminal</a>
+                        
+                        <button class="action-btn" onclick="document.getElementById('upload-{{ name }}').click()" title="Upload">↑</button>
+                        <input type="file" id="upload-{{ name }}" hidden data-server="{{ name }}" class="upload-input">
+
+                        <form action="/server/delete/{{ name }}" method="POST" onsubmit="return confirm('Delete this project?')">
+                            <button class="action-btn delete" title="Delete">🗑</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="text-align: center; padding: 3rem; color: var(--text-dim);">
+                    <p>No projects found. Create one to get started.</p>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <button class="fab" onclick="toggleModal(true)">+</button>
+
+    <div id="createModal" class="modal-bg" onclick="if(event.target===this)toggleModal(false)">
+        <div class="modal">
+            <h3 style="margin-bottom: 1.5rem;">Create New Project</h3>
+            <form action="/server/create" method="POST">
+                <label style="font-size: 0.8rem; color: var(--text-dim);">PROJECT NAME</label>
+                <input class="form-input" name="name" placeholder="my-awesome-app" required>
+                
+                <div style="margin-top: 1.5rem;">
+                    <label style="font-size: 0.8rem; color: var(--text-dim);">RUNTIME ENVIRONMENT</label>
+                    <select class="form-input" name="runtime">
+                        <option value="python">Python 3.x</option>
+                        <option value="node">Node.js LTS</option>
+                        <option value="static">Static HTML</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 2rem;">
+                    <button type="submit" class="btn" style="background: var(--accent); color: var(--bg-dark); flex: 1; justify-content: center;">Create Server</button>
+                    <button type="button" class="btn" onclick="toggleModal(false)" style="background: var(--border); color: white;">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast">Project updated successfully!</div>
+
+    <script>
+        function toggleModal(show) {
+            document.getElementById('createModal').classList.toggle('show', show);
+        }
+
+        async function fetchStats(){
+            try {
+                const r = await fetch('/api/stats');
+                const d = await r.json();
+                document.getElementById('statCpu').textContent = d.cpu.toFixed(1) + '%';
+                document.getElementById('statRam').textContent = d.ram.toFixed(1) + '%';
+                document.getElementById('statDisk').textContent = d.disk.toFixed(1) + '%';
+            } catch(e) {}
+        }
+        setInterval(fetchStats, 5000);
+        fetchStats();
+
+        // File Upload Logic
+        document.querySelectorAll('.upload-input').forEach(input => {
+            input.addEventListener('change', async function() {
+                if(!this.files[0]) return;
+                const fd = new FormData();
+                fd.append('file', this.files[0]);
+                const serverName = this.dataset.server;
+                
+                showToast("Uploading files...");
+                
+                try {
+                    const r = await fetch(`/server/${serverName}/upload`, { method: 'POST', body: fd });
+                    const d = await r.json();
+                    if(d.success) {
+                        showToast("Upload complete!");
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        showToast("Error: " + d.error);
+                    }
+                } catch(e) {
+                    showToast("Upload failed.");
+                }
+            });
+        });
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>
